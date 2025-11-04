@@ -33,7 +33,7 @@ export interface Transaction {
     amount: number; // Positive for income, negative for expenses
     timestamp: number;
     purchasedProductId?: string; // Link income to a specific purchased product
-    status?: 'pending' | 'completed' | 'failed';
+    status?: 'pending' | 'completed' | 'rejected';
 }
 
 export interface Notification {

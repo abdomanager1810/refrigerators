@@ -61,6 +61,15 @@ export const findUserByInviteCode = (inviteCode: string): User | undefined => {
 };
 
 /**
+ * Gets all users from the database.
+ * @returns An array of all user objects.
+ */
+export const getAllUsers = (): User[] => {
+    const db = getUsersDb();
+    return Object.values(db);
+};
+
+/**
  * Saves a single user's data to the database.
  * @param user The user object to save.
  */

@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import SubPageLayout from '../components/SubPageLayout';
 import { useAuth } from '../hooks/useAuth';
 import { showToast } from '../utils/toast';
 import { ClipboardIcon } from '../components/icons';
+import { getConfig } from '../data/configDb';
+import Spinner from '../components/Spinner';
 
 const EWalletInputModal: React.FC<{ onConfirm: (wallet: string) => void; }> = ({ onConfirm }) => {
     const [wallet, setWallet] = useState(Array(11).fill(''));
@@ -76,32 +77,22 @@ const ReminderModal: React.FC<{ amount: number; onClose: () => void; }> = ({ amo
     </div>
 );
 
-const ResultModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => (
-     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg w-full max-w-sm text-center p-6 shadow-lg">
-             <img src="https://i.imgur.com/gB4swPL.png" alt="Error" className="w-24 h-24 mx-auto mb-4" />
-            <h3 className="font-bold text-lg mb-2">لم يتم استلام الدفعة بعد، يرجى المحاولة مرة أخرى لاحقًا.</h3>
-            <p className="text-gray-600 mb-6">قد يستغرق وصول الدفعة بعض الوقت.</p>
-            <button onClick={onClose} className="w-full px-6 py-2 bg-gray-200 text-gray-700 rounded-md">موافق</button>
-        </div>
-    </div>
-);
-
-
 const PaymentPage: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { addTransaction } = useAuth();
+    const { requestRecharge } = useAuth();
     const [amount, setAmount] = useState(0);
     const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes
     const [step, setStep] = useState<'enterWallet' | 'showDetails'>('enterWallet');
     const [userWallet, setUserWallet] = useState('');
-    const [modal, setModal] = useState<'ewallet' | 'reminder' | 'result' | null>('ewallet');
-    const [getResultAttempt, setGetResultAttempt] = useState(0);
+    const [modal, setModal] = useState<'ewallet' | 'reminder' | null>('ewallet');
+    const [receiverWallet, setReceiverWallet] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
-    const receiverWallet = '01206998667';
 
     useEffect(() => {
+        const config = getConfig();
+        setReceiverWallet(config.paymentInfo.receiverWallet);
         if (location.state?.amount) {
             setAmount(location.state.amount);
         } else {
@@ -140,18 +131,16 @@ const PaymentPage: React.FC = () => {
         setStep('showDetails');
     };
     
-    const handleGetResult = () => {
-        if (getResultAttempt < 1) {
-            setModal('result');
-            setGetResultAttempt(prev => prev + 1);
-        } else {
-             addTransaction({
-                type: 'recharge',
-                description: 'إعادة الشحن',
-                amount: amount
-            });
-            showToast(`تم شحن EGP ${amount.toFixed(2)} بنجاح`);
-            navigate('/account');
+    const handleSubmitPayment = async () => {
+        setIsLoading(true);
+        try {
+            await requestRecharge(amount);
+            showToast(`تم تقديم طلب الشحن الخاص بك بمبلغ ${amount.toFixed(2)} جنيه وهو قيد المراجعة الآن.`);
+            navigate('/records');
+        } catch(error) {
+            if (error instanceof Error) showToast(error.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -161,7 +150,6 @@ const PaymentPage: React.FC = () => {
         <SubPageLayout title="E-Wallet">
             {modal === 'ewallet' && <EWalletInputModal onConfirm={handleWalletConfirm} />}
             {modal === 'reminder' && <ReminderModal amount={amount} onClose={handleReminderClose} />}
-            {modal === 'result' && <ResultModal onClose={() => setModal(null)} />}
             
             <div className="p-4 space-y-4 text-center">
                 <p>يجب عليك إكمال الدفع في غضون المهلة الزمنية التالية:</p>
@@ -204,9 +192,9 @@ const PaymentPage: React.FC = () => {
                              </div>
                         </div>
 
-                        <p className="text-sm text-gray-500 mt-6">إذا تم إكمال الدفع، يرجى النقر على الزر للحصول على النتيجة، الأمر الذي قد يستغرق بضع دقائق.</p>
-                        <button onClick={handleGetResult} className="w-full bg-blue-600 text-white font-bold p-3 rounded-lg shadow-lg mt-2">
-                            الحصول على النتيجة
+                        <p className="text-sm text-gray-500 mt-6">إذا تم إكمال الدفع، يرجى النقر على الزر أدناه. سيقوم المسؤول بمراجعة طلبك.</p>
+                        <button onClick={handleSubmitPayment} disabled={isLoading} className="w-full bg-blue-600 text-white font-bold p-3 rounded-lg shadow-lg mt-2 flex justify-center items-center">
+                           {isLoading ? <Spinner /> : 'لقد أكملت الدفع'}
                         </button>
                     </>
                 )}

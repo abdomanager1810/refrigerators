@@ -13,30 +13,11 @@ const EmptyState: React.FC = () => (
     </div>
 );
 
-const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
-    const date = new Date(transaction.timestamp);
-    const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-    const isPositive = transaction.amount > 0;
-    
-    return (
-        <div className="bg-white p-4 text-right border-b border-gray-100">
-            <p className="font-mono text-base text-black font-bold mb-2 tracking-tight">{transaction.id}</p>
-             <div className="flex justify-between items-center">
-                <p className="font-semibold text-gray-700">{transaction.description}</p>
-                <p className={`font-bold text-lg ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                    {isPositive ? '+' : ''}{transaction.amount.toFixed(2)} EGP
-                </p>
-            </div>
-            <p className="text-xs text-gray-400 mt-2 text-left">{formattedDate}</p>
-        </div>
-    );
-};
-
 const getStatusStyles = (status: Transaction['status']) => {
     switch (status) {
         case 'completed':
             return 'bg-green-100 text-green-800';
-        case 'failed':
+        case 'rejected':
             return 'bg-red-100 text-red-800';
         case 'pending':
             return 'bg-yellow-100 text-yellow-800';
@@ -49,8 +30,8 @@ const getStatusText = (status: Transaction['status']) => {
     switch (status) {
         case 'completed':
             return 'نجاح';
-        case 'failed':
-            return 'فشل';
+        case 'rejected':
+            return 'مرفوض';
         case 'pending':
             return 'قيد الانتظار';
         default:
@@ -59,11 +40,11 @@ const getStatusText = (status: Transaction['status']) => {
 }
 
 const getStatusIcon = (status: Transaction['status']) => {
-    const iconClass = "w-3.5 h-3.5 mr-1";
+    const iconClass = "w-3.5 h-3.5 ml-1";
     switch (status) {
         case 'completed':
             return <CheckCircleIcon className={iconClass} />;
-        case 'failed':
+        case 'rejected':
             return <XCircleIcon className={iconClass} />;
         case 'pending':
             return <ClockIcon className={iconClass} />;
@@ -72,32 +53,34 @@ const getStatusIcon = (status: Transaction['status']) => {
     }
 };
 
-const WithdrawalItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
+const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
     const date = new Date(transaction.timestamp);
     const formattedDate = `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    const isPositive = transaction.amount > 0;
     
-    const feeMatch = transaction.description.match(/رسوم ([\d.]+) جنيه/);
-    const fee = feeMatch ? parseFloat(feeMatch[1]) : 0;
-    const receivedAmount = Math.abs(transaction.amount) - fee;
-
+    const showStatus = transaction.type === 'recharge' || transaction.type === 'withdraw';
+    
     return (
         <div className="bg-white p-4 text-right border-b border-gray-100">
             <p className="font-mono text-base text-black font-bold mb-2 tracking-tight">{transaction.id}</p>
-            <p className="font-bold text-lg my-1">
-                <span className="text-red-500">EGP {Math.abs(transaction.amount).toFixed(2)}</span> <span className="text-gray-800 font-semibold">سحب المال</span>
-            </p>
-            <p className="text-sm text-gray-600">وصول فعلي: EGP {receivedAmount.toFixed(2)}</p>
+             <div className="flex justify-between items-center">
+                <p className="font-semibold text-gray-700">{transaction.description}</p>
+                <p className={`font-bold text-lg ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                    {isPositive ? '+' : ''}{transaction.amount.toFixed(2)} EGP
+                </p>
+            </div>
             <div className="flex justify-between items-center mt-2">
-                <p className="text-xs text-gray-400">{formattedDate}</p>
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full flex items-center justify-center ${getStatusStyles(transaction.status)}`}>
-                    {getStatusIcon(transaction.status)}
-                    <span>{getStatusText(transaction.status)}</span>
-                </span>
+                 <p className="text-xs text-gray-400">{formattedDate}</p>
+                 {showStatus && transaction.status && (
+                     <span className={`px-2 py-1 text-xs font-semibold rounded-full flex items-center justify-center ${getStatusStyles(transaction.status)}`}>
+                        {getStatusIcon(transaction.status)}
+                        <span>{getStatusText(transaction.status)}</span>
+                    </span>
+                 )}
             </div>
         </div>
     );
 };
-
 
 const RecordsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<Transaction['type'] | 'all'>('all');
@@ -128,12 +111,7 @@ const RecordsPage: React.FC = () => {
         
         return (
             <div className="bg-gray-200">
-                {filteredTransactions.map(tx => {
-                    if (tx.type === 'withdraw') {
-                        return <WithdrawalItem key={tx.id} transaction={tx} />
-                    }
-                    return <TransactionItem key={tx.id} transaction={tx} />;
-                })}
+                {filteredTransactions.map(tx => <TransactionItem key={tx.id} transaction={tx} />)}
                 <p className="text-center text-gray-400 py-4 text-sm">لا مزيد من البيانات</p>
             </div>
         );
@@ -142,12 +120,12 @@ const RecordsPage: React.FC = () => {
     return (
         <SubPageLayout title={activeTabLabel}>
             <div className="bg-white shadow">
-                <div className="flex justify-around border-b">
+                <div className="flex justify-around border-b overflow-x-auto no-scrollbar">
                     {tabs.map(tab => (
                         <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 py-3 text-sm font-semibold whitespace-nowrap px-1 ${activeTab === tab.id ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-gray-500'}`}
+                            className={`flex-1 py-3 text-sm font-semibold whitespace-nowrap px-2 ${activeTab === tab.id ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-gray-500'}`}
                         >
                             {tab.label}
                         </button>

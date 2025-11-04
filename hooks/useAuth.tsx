@@ -2,6 +2,7 @@ import React, { createContext, useState, ReactNode, useEffect, useContext } from
 import { User, Transaction, Product, PurchasedProduct, Notification, WithdrawalWallet } from '../types';
 import { useProducts } from './useProducts';
 import * as db from '../data/db';
+import { getConfig } from '../data/configDb';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -9,6 +10,7 @@ interface AuthContextType {
     register: (phone: string, password: string, referrerCode: string) => Promise<User>;
     logout: () => void;
     addTransaction: (transaction: Omit<Transaction, 'id' | 'timestamp'>) => void;
+    requestRecharge: (amount: number) => Promise<void>;
     purchaseProduct: (productId: number) => Promise<void>;
     sellProduct: (purchasedProductId: string) => Promise<void>;
     withdraw: (amount: number, withdrawalPassword: string) => Promise<void>;
@@ -185,69 +187,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return () => clearInterval(intervalId);
     }, [currentUser]);
 
-    // Simulate withdrawal status changes
-    useEffect(() => {
-        if (!currentUser) return;
-
-        const intervalId = setInterval(() => {
-            const latestUser = db.findUserByPhone(currentUser.phone);
-            if (!latestUser) {
-                clearInterval(intervalId);
-                return;
-            }
-
-            const pendingWithdrawals = latestUser.transactions.filter(
-                tx => tx.type === 'withdraw' && tx.status === 'pending'
-            );
-
-            if (pendingWithdrawals.length === 0) return;
-
-            let userWasUpdated = false;
-            let updatedUser = { ...latestUser };
-
-            const updatedTransactions = updatedUser.transactions.map(tx => {
-                if (tx.type === 'withdraw' && tx.status === 'pending') {
-                    // ~33% chance to change status every 20 seconds
-                    const chance = Math.random();
-                    if (chance < 0.33) {
-                        userWasUpdated = true;
-                        // 80% chance of success, 20% of failure
-                        // FIX: Explicitly type `newStatus` to satisfy the `Transaction['status']` type.
-                        const newStatus: 'completed' | 'failed' = Math.random() < 0.8 ? 'completed' : 'failed';
-                        
-                        if (newStatus === 'failed') {
-                            // Refund the amount if it failed
-                            updatedUser.balance += Math.abs(tx.amount);
-                            updatedUser = _addNotification(
-                                updatedUser,
-                                'فشل السحب',
-                                `فشل طلب السحب الخاص بك بمبلغ ${Math.abs(tx.amount).toFixed(2)} جنيه. تم رد المبلغ إلى رصيدك.`
-                            );
-                        } else {
-                            updatedUser = _addNotification(
-                                updatedUser,
-                                'اكتمل السحب',
-                                `اكتمل طلب السحب الخاص بك بمبلغ ${Math.abs(tx.amount).toFixed(2)} جنيه بنجاح.`
-                            );
-                        }
-
-                        return { ...tx, status: newStatus };
-                    }
-                }
-                return tx;
-            });
-
-            if (userWasUpdated) {
-                updatedUser.transactions = updatedTransactions;
-                updateUser(updatedUser);
-            }
-
-        }, 20000); // Run every 20 seconds
-
-        return () => clearInterval(intervalId);
-    }, [currentUser]);
-
-
     const login = (phone: string, password: string): Promise<User> => {
         return new Promise((resolve, reject) => {
             const user = db.findUserByPhone(phone);
@@ -400,6 +339,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
 
         updateUser(updatedUser);
+    };
+
+    const requestRecharge = (amount: number): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            if (!currentUser) return reject(new Error('User not logged in'));
+    
+            const rechargeTransaction: Transaction = {
+                id: generateTransactionId(),
+                type: 'recharge',
+                description: `طلب شحن`,
+                amount: amount,
+                timestamp: Date.now(),
+                status: 'pending',
+            };
+    
+            let updatedUser: User = {
+                ...currentUser,
+                transactions: [rechargeTransaction, ...currentUser.transactions],
+            };
+    
+            updatedUser = _addNotification(
+                updatedUser, 
+                'طلب شحن قيد المراجعة', 
+                `تم تقديم طلب الشحن الخاص بك بمبلغ ${amount.toFixed(2)} جنيه وهو قيد المراجعة الآن.`
+            );
+    
+            updateUser(updatedUser);
+            resolve();
+        });
     };
 
     const purchaseProduct = (productId: number): Promise<void> => {
@@ -560,15 +528,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return new Promise(async (resolve, reject) => {
             if (!currentUser) return reject(new Error('User not logged in'));
 
-            const now = new Date();
-            const EGYPT_TIME_OFFSET = 2; // EET is UTC+2
-            const egyptHour = (now.getUTCHours() + EGYPT_TIME_OFFSET) % 24;
+            const config = getConfig();
+            const { is24Hour, startHour, endHour } = config.withdrawalSettings;
 
-            const WITHDRAW_START_HOUR = 10; // 10:00 AM
-            const WITHDRAW_END_HOUR = 18;   // 6:00 PM
+            if (!is24Hour) {
+                const now = new Date();
+                const EGYPT_TIME_OFFSET = 2; // EET is UTC+2
+                const egyptHour = (now.getUTCHours() + EGYPT_TIME_OFFSET) % 24;
 
-            if (egyptHour < WITHDRAW_START_HOUR || egyptHour >= WITHDRAW_END_HOUR) {
-                return reject(new Error('يمكن إجراء عمليات السحب فقط بين الساعة 10:00 صباحًا و 6:00 مساءً بتوقيت مصر.'));
+                if (egyptHour < startHour || egyptHour >= endHour) {
+                    return reject(new Error(`يمكن إجراء عمليات السحب فقط بين الساعة ${startHour}:00 و ${endHour}:00 بتوقيت مصر.`));
+                }
             }
             
             if (!currentUser.withdrawalWallet) {
@@ -805,7 +775,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, login, register, logout, addTransaction, purchaseProduct, sellProduct, withdraw, linkWithdrawalWallet, setWithdrawalPassword, resetWithdrawalPassword, changePassword, updateEmail, markNotificationsAsRead, dailyCheckIn, hasCheckedInToday, generateTwoFactorSecret, confirmTwoFactorAuth, disableTwoFactorAuth, verifyTwoFactorLogin }}>
+        <AuthContext.Provider value={{ currentUser, login, register, logout, addTransaction, purchaseProduct, sellProduct, withdraw, linkWithdrawalWallet, setWithdrawalPassword, resetWithdrawalPassword, changePassword, updateEmail, markNotificationsAsRead, dailyCheckIn, hasCheckedInToday, generateTwoFactorSecret, confirmTwoFactorAuth, disableTwoFactorAuth, verifyTwoFactorLogin, requestRecharge }}>
             {children}
         </AuthContext.Provider>
     );
