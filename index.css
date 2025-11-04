@@ -1,0 +1,224 @@
+body {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* --- Spinner --- */
+.spinner {
+    border-radius: 50%;
+    animation: spinner-rotate 0.8s linear infinite;
+}
+.spinner-light {
+    border-color: rgba(255, 255, 255, 0.2);
+    border-top-color: white;
+}
+.spinner-dark {
+    border-color: rgba(55, 48, 163, 0.2); /* indigo-800 */
+    border-top-color: #4f46e5; /* indigo-600 */
+}
+@keyframes spinner-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* --- Page & Component Animations --- */
+.page-fade-in {
+    animation: page-fade-in 0.4s ease-out forwards;
+}
+
+@keyframes page-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card-enter {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: card-enter-anim 0.5s ease-out forwards;
+}
+
+@keyframes card-enter-anim {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-scale-in {
+    animation: scale-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+
+/* --- Toast Animations --- */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, 20px) scale(0.9);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.3s ease-out forwards;
+}
+
+.animate-toast-out {
+  animation: toast-out 0.3s ease-in forwards;
+}
+
+
+/* --- Marquee for notifications --- */
+.marquee-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+.marquee {
+    display: inline-block;
+    white-space: nowrap;
+    animation: marquee 30s linear infinite;
+    will-change: transform;
+}
+@keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-150%); } /* Extend the end point */
+}
+
+/* --- Slow Spin for header icon --- */
+.animate-spin-slow {
+    animation: spin 10s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Auth Page Redesign --- */
+.animated-gradient-bg {
+    background: linear-gradient(-45deg, #1e3a8a, #312e81, #4f46e5, #3b82f6);
+    background-size: 400% 400%;
+    animation: animated-gradient 15s ease infinite;
+}
+
+@keyframes animated-gradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.auth-input {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+}
+.auth-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+.auth-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.auth-card-enter {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    animation: auth-card-enter-anim 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes auth-card-enter-anim {
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-fade-in-out {
+    animation: fade-in-out 5s ease-in-out forwards;
+}
+
+@keyframes fade-in-out {
+    0%, 100% { opacity: 0; transform: translateY(10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+}
+
+/* --- New List Item Animation --- */
+.animate-list-item-in {
+    opacity: 0;
+    transform: translateX(20px);
+    animation: list-item-in-anim 0.4s ease-out forwards;
+}
+
+@keyframes list-item-in-anim {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* --- Category Card Hover Effect --- */
+.category-card-hover {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.category-card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* --- Banner Animation --- */
+@keyframes banner-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}

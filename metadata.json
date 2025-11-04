@@ -1,0 +1,5 @@
+{
+  "name": "Refrigerators - Investment Platform",
+  "description": "A web application for a smart refrigerator investment platform. It includes user registration, login, and a dashboard with different sections for home, products, team, and account management.",
+  "requestFramePermissions": []
+}
