@@ -6,23 +6,23 @@ import { ClockIcon, CheckCircleIcon, XCircleIcon } from '../components/icons';
 
 const EmptyState: React.FC = () => (
     <div className="text-center py-20">
-        <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-4">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 11v6l8 4m8-10v6l-8 4" /></svg>
+        <div className="w-32 h-32 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 11v6l8 4m8-10v6l-8 4" /></svg>
         </div>
-        <p className="text-gray-500">لا مزيد من البيانات</p>
+        <p className="text-gray-400">لا مزيد من البيانات</p>
     </div>
 );
 
 const getStatusStyles = (status: Transaction['status']) => {
     switch (status) {
         case 'completed':
-            return 'bg-green-100 text-green-800';
+            return 'bg-green-500/20 text-green-300';
         case 'rejected':
-            return 'bg-red-100 text-red-800';
+            return 'bg-red-500/20 text-red-300';
         case 'pending':
-            return 'bg-yellow-100 text-yellow-800';
+            return 'bg-yellow-500/20 text-yellow-300';
         default:
-            return 'bg-gray-100 text-gray-800';
+            return 'bg-gray-500/20 text-gray-300';
     }
 };
 
@@ -61,11 +61,11 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
     const showStatus = transaction.type === 'recharge' || transaction.type === 'withdraw';
     
     return (
-        <div className="bg-white p-4 text-right border-b border-gray-100">
-            <p className="font-mono text-base text-black font-bold mb-2 tracking-tight">{transaction.id}</p>
+        <div className="bg-gray-700 p-4 text-right border-b border-gray-600">
+            <p className="font-mono text-base text-gray-100 font-bold mb-2 tracking-tight">{transaction.id}</p>
              <div className="flex justify-between items-center">
-                <p className="font-semibold text-gray-700">{transaction.description}</p>
-                <p className={`font-bold text-lg ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
+                <p className="font-semibold text-gray-200">{transaction.description}</p>
+                <p className={`font-bold text-lg ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
                     {isPositive ? '+' : ''}{transaction.amount.toFixed(2)} EGP
                 </p>
             </div>
@@ -110,22 +110,22 @@ const RecordsPage: React.FC = () => {
         }
         
         return (
-            <div className="bg-gray-200">
+            <div className="bg-gray-800">
                 {filteredTransactions.map(tx => <TransactionItem key={tx.id} transaction={tx} />)}
-                <p className="text-center text-gray-400 py-4 text-sm">لا مزيد من البيانات</p>
+                <p className="text-center text-gray-500 py-4 text-sm">لا مزيد من البيانات</p>
             </div>
         );
     }
 
     return (
         <SubPageLayout title={activeTabLabel}>
-            <div className="bg-white shadow">
-                <div className="flex justify-around border-b overflow-x-auto no-scrollbar">
+            <div className="bg-gray-700 shadow">
+                <div className="flex justify-around border-b border-gray-600 overflow-x-auto no-scrollbar">
                     {tabs.map(tab => (
                         <button 
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex-1 py-3 text-sm font-semibold whitespace-nowrap px-2 ${activeTab === tab.id ? 'text-indigo-500 border-b-2 border-indigo-500' : 'text-gray-500'}`}
+                            className={`flex-1 py-3 text-sm font-semibold whitespace-nowrap px-2 ${activeTab === tab.id ? 'text-indigo-400 border-b-2 border-indigo-400' : 'text-gray-400'}`}
                         >
                             {tab.label}
                         </button>

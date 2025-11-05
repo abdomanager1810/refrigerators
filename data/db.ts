@@ -90,3 +90,13 @@ export const saveMultipleUsers = (users: User[]): void => {
     });
     saveUsersDb(db);
 };
+
+/**
+ * Deletes a user from the database by their phone number.
+ * @param phone The phone number of the user to delete.
+ */
+export const deleteUser = (phone: string): void => {
+    const db = getUsersDb();
+    delete db[phone];
+    saveUsersDb(db);
+};

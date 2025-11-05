@@ -2,7 +2,7 @@ import React, { createContext, useState, ReactNode, useEffect, useContext } from
 import { User, Transaction, Product, PurchasedProduct, Notification, WithdrawalWallet } from '../types';
 import { useProducts } from './useProducts';
 import * as db from '../data/db';
-import { getConfig } from '../data/configDb';
+import { getConfig, saveConfig } from '../data/configDb';
 
 interface AuthContextType {
     currentUser: User | null;
@@ -10,7 +10,7 @@ interface AuthContextType {
     register: (phone: string, password: string, referrerCode: string) => Promise<User>;
     logout: () => void;
     addTransaction: (transaction: Omit<Transaction, 'id' | 'timestamp'>) => void;
-    requestRecharge: (amount: number) => Promise<void>;
+    requestRecharge: (amount: number, senderWallet: string) => Promise<void>;
     purchaseProduct: (productId: number) => Promise<void>;
     sellProduct: (purchasedProductId: string) => Promise<void>;
     withdraw: (amount: number, withdrawalPassword: string) => Promise<void>;
@@ -22,6 +22,7 @@ interface AuthContextType {
     markNotificationsAsRead: () => void;
     dailyCheckIn: () => Promise<string>;
     hasCheckedInToday: () => boolean;
+    updateUserWallet: (phone: string, wallet: WithdrawalWallet) => Promise<void>;
     // 2FA Methods
     generateTwoFactorSecret: () => Promise<string>;
     confirmTwoFactorAuth: (totpCode: string) => Promise<void>;
@@ -188,26 +189,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }, [currentUser]);
 
     const login = (phone: string, password: string): Promise<User> => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             const user = db.findUserByPhone(phone);
-            if (user && user.password === password) {
-                if (user.isTwoFactorEnabled) {
-                    setUserAwaiting2FA(user);
-                    reject(new Error('2FA_REQUIRED'));
+            if (user) {
+                const isHashed = user.password.length === 64 && /^[0-9a-f]{64}$/.test(user.password);
+                const inputHash = await _hashPassword(password);
+    
+                let passwordMatch = false;
+                if (isHashed) {
+                    passwordMatch = user.password === inputHash;
                 } else {
-                    const now = Date.now();
-                    const lastLogin = user.lastLogin || now;
-                    const userAfterIncome = calculateAndApplyIncome(user, lastLogin, now);
-                    updateUser(userAfterIncome);
-                    sessionStorage.setItem('loggedInUser', userAfterIncome.phone);
-                    resolve(userAfterIncome);
+                    // Legacy plaintext password check
+                    passwordMatch = user.password === password;
+                }
+    
+                if (passwordMatch) {
+                    // Successful login, now check if we need to migrate the password
+                    if (!isHashed) {
+                        user.password = inputHash; // Upgrade to hashed password
+                    }
+    
+                    if (user.isBlocked) {
+                        return reject(new Error('تم حظر هذا الحساب.'));
+                    }
+                    if (user.isTwoFactorEnabled) {
+                        setUserAwaiting2FA(user);
+                        reject(new Error('2FA_REQUIRED'));
+                    } else {
+                        const now = Date.now();
+                        const lastLogin = user.lastLogin || now;
+                        // Pass the potentially modified user object to calculateAndApplyIncome
+                        const userAfterIncome = calculateAndApplyIncome(user, lastLogin, now);
+                        updateUser(userAfterIncome); // This will save the potentially updated password hash
+                        sessionStorage.setItem('loggedInUser', userAfterIncome.phone);
+                        resolve(userAfterIncome);
+                    }
+                } else {
+                    return reject(new Error('كلمة المرور التي أدخلتها غير صحيحة.'));
                 }
             } else {
-                if (!user) {
-                    return reject(new Error('رقم الهاتف هذا غير مسجل.'));
-                }
-                // if user exists, then password must be wrong
-                return reject(new Error('كلمة المرور التي أدخلتها غير صحيحة.'));
+                return reject(new Error('رقم الهاتف هذا غير مسجل.'));
             }
         });
     };
@@ -235,7 +256,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     const register = (phone: string, password: string, referrerCode: string): Promise<User> => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (db.findUserByPhone(phone)) {
                 return reject(new Error('رقم الهاتف مسجل بالفعل.'));
             }
@@ -251,10 +272,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 }
             }
             
+            const hashedPassword = await _hashPassword(password);
+            
             let newUser: User = {
                 phone,
-                password,
+                password: hashedPassword,
                 inviteCode: generateInviteCode(),
+                registrationInviteCode: normalizedReferrerCode || undefined,
                 balance: 100.00, // Welcome bonus
                 totalRevenue: 0.00,
                 transactions: [
@@ -274,6 +298,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 team: { lv1: [], lv2: [], lv3: [] },
                 teamBonuses: { lv1: 0, lv2: 0, lv3: 0 },
                 isTwoFactorEnabled: false,
+                isBlocked: false,
             };
             
             newUser = _addNotification(newUser, 'مكافأة التسجيل', 'مرحباً بك! لقد حصلت على 100.00 جنيه مكافأة تسجيل.');
@@ -341,17 +366,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateUser(updatedUser);
     };
 
-    const requestRecharge = (amount: number): Promise<void> => {
+    const requestRecharge = (amount: number, senderWallet: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             if (!currentUser) return reject(new Error('User not logged in'));
     
             const rechargeTransaction: Transaction = {
                 id: generateTransactionId(),
                 type: 'recharge',
-                description: `طلب شحن`,
+                description: 'طلب شحن',
                 amount: amount,
                 timestamp: Date.now(),
                 status: 'pending',
+                senderWallet: senderWallet,
             };
     
             let updatedUser: User = {
@@ -433,8 +459,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const referrer = db.findUserByPhone(referrerPhone);
                 if (!referrer) return undefined;
 
-                const rates = { 1: 0.35, 2: 0.02, 3: 0.01 };
-                const bonus = purchasePrice * rates[level];
+                const defaultRates = { 1: 0.35, 2: 0.02, 3: 0.01 };
+                const commissionRate = referrer.commissionRates?.[`lv${level}`] ?? defaultRates[level];
+                const bonus = purchasePrice * commissionRate;
+
+                if (bonus <= 0) {
+                    return referrer.referrer;
+                }
 
                 const mutableReferrer = { ...referrer, transactions: [...referrer.transactions] };
                 mutableReferrer.balance += bonus;
@@ -523,10 +554,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             resolve();
         });
     }
+    
+    const formatToAmPm = (hour: number): string => {
+        const period = hour >= 12 ? 'مساءً' : 'صباحًا';
+        const h12 = hour % 12 || 12;
+        return `${h12}:00 ${period}`;
+    };
+
 
     const withdraw = (amount: number, withdrawalPassword: string): Promise<void> => {
         return new Promise(async (resolve, reject) => {
             if (!currentUser) return reject(new Error('User not logged in'));
+            
+            if (currentUser.purchasedProducts.length === 0) {
+                return reject(new Error('يجب عليك شراء منتج واحد على الأقل قبل أن تتمكن من السحب.'));
+            }
 
             const config = getConfig();
             const { is24Hour, startHour, endHour } = config.withdrawalSettings;
@@ -537,7 +579,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 const egyptHour = (now.getUTCHours() + EGYPT_TIME_OFFSET) % 24;
 
                 if (egyptHour < startHour || egyptHour >= endHour) {
-                    return reject(new Error(`يمكن إجراء عمليات السحب فقط بين الساعة ${startHour}:00 و ${endHour}:00 بتوقيت مصر.`));
+                    return reject(new Error(`يمكن إجراء عمليات السحب فقط بين ${formatToAmPm(startHour)} و ${formatToAmPm(endHour)} بتوقيت مصر.`));
                 }
             }
             
@@ -613,6 +655,24 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             resolve();
         });
     };
+    
+    const updateUserWallet = (phone: string, wallet: WithdrawalWallet): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            const userToUpdate = db.findUserByPhone(phone);
+            if (!userToUpdate) return reject(new Error("User not found"));
+
+            let updatedUser: User = { ...userToUpdate, withdrawalWallet: wallet };
+            
+            updatedUser = _addNotification(
+                updatedUser,
+                'تم تحديث المحفظة',
+                'قام المسؤول بتحديث معلومات محفظة السحب الخاصة بك.'
+            );
+
+            db.saveUser(updatedUser);
+            resolve();
+        });
+    };
 
     const setWithdrawalPassword = (password: string): Promise<void> => {
         return new Promise(async (resolve, reject) => {
@@ -648,14 +708,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
      const changePassword = (oldPassword: string, newPassword: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             if (!currentUser) return reject(new Error("User not logged in."));
 
-            if (currentUser.password !== oldPassword) {
+            const isHashed = currentUser.password.length === 64 && /^[0-9a-f]{64}$/.test(currentUser.password);
+            
+            let passwordMatch = false;
+            if (isHashed) {
+                const oldPasswordHash = await _hashPassword(oldPassword);
+                passwordMatch = currentUser.password === oldPasswordHash;
+            } else {
+                passwordMatch = currentUser.password === oldPassword;
+            }
+    
+            if (!passwordMatch) {
                 return reject(new Error("كلمة المرور الحالية غير صحيحة."));
             }
-
-            const updatedUser = { ...currentUser, password: newPassword };
+    
+            const newPasswordHash = await _hashPassword(newPassword);
+            const updatedUser = { ...currentUser, password: newPasswordHash };
             updateUser(updatedUser);
             resolve();
         });
@@ -699,7 +770,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                 return reject(new Error('لقد قمت بتسجيل الوصول بالفعل اليوم.'));
             }
     
-            const CHECK_IN_REWARD = 5.00;
+            const CHECK_IN_REWARD = 3.00;
     
             const rewardTransaction: Transaction = {
                 id: generateTransactionId(),
@@ -775,7 +846,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     return (
-        <AuthContext.Provider value={{ currentUser, login, register, logout, addTransaction, purchaseProduct, sellProduct, withdraw, linkWithdrawalWallet, setWithdrawalPassword, resetWithdrawalPassword, changePassword, updateEmail, markNotificationsAsRead, dailyCheckIn, hasCheckedInToday, generateTwoFactorSecret, confirmTwoFactorAuth, disableTwoFactorAuth, verifyTwoFactorLogin, requestRecharge }}>
+        <AuthContext.Provider value={{ currentUser, login, register, logout, addTransaction, purchaseProduct, sellProduct, withdraw, linkWithdrawalWallet, setWithdrawalPassword, resetWithdrawalPassword, changePassword, updateEmail, markNotificationsAsRead, dailyCheckIn, hasCheckedInToday, generateTwoFactorSecret, confirmTwoFactorAuth, disableTwoFactorAuth, verifyTwoFactorLogin, requestRecharge, updateUserWallet }}>
             {children}
         </AuthContext.Provider>
     );

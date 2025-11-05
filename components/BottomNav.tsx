@@ -2,23 +2,25 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { HomeIcon, DollarSignIcon, UsersIcon, UserCircleIcon } from './icons';
+import { useLanguage } from '../hooks/useLanguage';
 
 const BottomNav: React.FC = () => {
     const { currentUser } = useAuth();
+    const { t } = useLanguage();
     const unreadCount = currentUser?.notifications?.filter(n => !n.read).length || 0;
 
     const navItems = [
-        { path: '/', label: 'بيت', icon: HomeIcon },
-        { path: '/products', label: 'المنتج', icon: DollarSignIcon },
-        { path: '/team', label: 'الفريق', icon: UsersIcon },
-        { path: '/account', label: 'خاصتي', icon: UserCircleIcon },
+        { path: '/', label: t('home'), icon: HomeIcon },
+        { path: '/products', label: t('product'), icon: DollarSignIcon },
+        { path: '/team', label: t('team'), icon: UsersIcon },
+        { path: '/account', label: t('my'), icon: UserCircleIcon },
     ];
 
-    const activeLinkClass = "text-indigo-600";
-    const inactiveLinkClass = "text-slate-500";
+    const activeLinkClass = "text-indigo-400";
+    const inactiveLinkClass = "text-gray-400";
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 shadow-lg">
+        <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-gray-800 border-t border-gray-700 shadow-lg">
             <div className="flex justify-around h-16">
                 {navItems.map((item) => (
                     <NavLink

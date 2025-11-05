@@ -34,6 +34,7 @@ export interface Transaction {
     timestamp: number;
     purchasedProductId?: string; // Link income to a specific purchased product
     status?: 'pending' | 'completed' | 'rejected';
+    senderWallet?: string; // Wallet user sent deposit from
 }
 
 export interface Notification {
@@ -83,10 +84,73 @@ export interface User {
     // Two-Factor Authentication
     isTwoFactorEnabled?: boolean;
     twoFactorSecret?: string;
+
+    commissionRates?: {
+        lv1: number;
+        lv2: number;
+        lv3: number;
+    };
+    isBlocked?: boolean;
+    registrationInviteCode?: string;
 }
 
 export interface Banner {
-    id: number;
+    id: string;
     imageUrl: string;
     link: string;
+}
+
+export interface CustomerServiceLink {
+    id: string;
+    name: string;
+    link: string;
+}
+
+export interface PromoCode {
+    id: string;
+    code: string;
+    bonusAmount: number;
+    usesLeft: number;
+}
+
+export interface WithdrawalSettings {
+    is24Hour: boolean;
+    startHour: number; // 0-23
+    endHour: number;   // 0-23
+}
+
+export interface PaymentInfo {
+    receiverWallet: string;
+}
+
+export interface SiteImages {
+    homeHeader: string;
+}
+
+export interface SiteConfig {
+    withdrawalSettings: WithdrawalSettings;
+    paymentInfo: PaymentInfo;
+    banners: Banner[];
+    customerServiceLinks: CustomerServiceLink[];
+    promoCodes: PromoCode[];
+    siteImages: SiteImages;
+    aboutUsContent: string;
+    platformRulesContent: string;
+}
+
+// AI Chat Types
+export interface ChatMessage {
+    id: string;
+    role: 'user' | 'model';
+    text: string;
+    image?: string; // base64 encoded image
+    timestamp: number;
+}
+
+export interface ChatSession {
+    id: string; // user phone number
+    language: 'ar' | 'en';
+    messages: ChatMessage[];
+    isClosed: boolean;
+    lastUpdated: number;
 }

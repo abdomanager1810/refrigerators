@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
-import { ClipboardIcon, UploadCloudIcon, DownloadCloudIcon, InfoIcon, BookOpenIcon, MessageCircleIcon, WalletIcon, BellIcon, ChevronLeftIcon, DollarSignIcon, CalendarIcon, ShieldIcon, LockIcon, PencilIcon, UserCircleIcon, EyeIcon, EyeOffIcon, SettingsIcon } from '../components/icons';
+import { ClipboardIcon, UploadCloudIcon, DownloadCloudIcon, InfoIcon, BookOpenIcon, MessageCircleIcon, WalletIcon, BellIcon, ChevronLeftIcon, DollarSignIcon, CalendarIcon, ShieldIcon, LockIcon, PencilIcon, UserCircleIcon, EyeIcon, EyeOffIcon, SettingsIcon, GlobeIcon } from '../components/icons';
 import { showToast } from '../utils/toast';
 import Spinner from '../components/Spinner';
 import { User } from '../types';
+import { useLanguage } from '../hooks/useLanguage';
 
 const ConfirmationModal: React.FC<{
     title: string;
@@ -16,11 +17,11 @@ const ConfirmationModal: React.FC<{
 }> = ({ title, message, confirmText, onConfirm, onCancel, isLoading }) => {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-sm text-center p-6 shadow-lg animate-scale-in">
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm text-center p-6 shadow-lg animate-scale-in">
                 <h3 className="font-bold text-lg mb-2">{title}</h3>
-                <p className="text-gray-600 mb-6">{message}</p>
+                <p className="text-gray-300 mb-6">{message}</p>
                 <div className="flex justify-center gap-4">
-                    <button onClick={onCancel} disabled={isLoading} className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md">إلغاء</button>
+                    <button onClick={onCancel} disabled={isLoading} className="px-6 py-2 bg-gray-600 text-gray-200 rounded-md">إلغاء</button>
                     <button 
                         onClick={onConfirm} 
                         disabled={isLoading}
@@ -58,7 +59,7 @@ const ProfileEditModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
                 <h3 className="font-bold text-lg mb-4 text-center">تعديل الملف الشخصي</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -68,11 +69,11 @@ const ProfileEditModal: React.FC<{
                             value={email}
                             onChange={e => setEmail(e.target.value)}
                             placeholder="أدخل بريدك الإلكتروني"
-                            className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-right"
+                            className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-right"
                         />
                     </div>
                     <div className="flex gap-2 pt-2">
-                        <button type="button" onClick={onClose} className="w-full bg-gray-200 text-gray-700 font-bold p-3 rounded-lg">إلغاء</button>
+                        <button type="button" onClick={onClose} className="w-full bg-gray-600 text-gray-200 font-bold p-3 rounded-lg">إلغاء</button>
                         <button type="submit" disabled={isLoading} className="w-full bg-indigo-500 text-white font-bold p-3 rounded-lg flex justify-center items-center disabled:bg-indigo-300">
                             {isLoading ? <Spinner /> : 'حفظ'}
                         </button>
@@ -133,14 +134,14 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
         <>
             <h3 className="font-bold text-lg mb-2">حالة التحقق بخطوتين</h3>
             {currentUser?.isTwoFactorEnabled ? (
-                 <div className="text-center p-4 my-4 bg-green-100 border border-green-200 rounded-lg">
-                    <p className="font-semibold text-green-800">نشط</p>
-                    <p className="text-xs text-green-600">حسابك محمي حاليًا.</p>
+                 <div className="text-center p-4 my-4 bg-green-900/50 border border-green-500/30 rounded-lg">
+                    <p className="font-semibold text-green-300">نشط</p>
+                    <p className="text-xs text-green-400">حسابك محمي حاليًا.</p>
                 </div>
             ) : (
-                <div className="text-center p-4 my-4 bg-yellow-100 border border-yellow-200 rounded-lg">
-                    <p className="font-semibold text-yellow-800">غير نشط</p>
-                    <p className="text-xs text-yellow-600">حسابك غير محمي. يوصى بتفعيله.</p>
+                <div className="text-center p-4 my-4 bg-yellow-900/50 border border-yellow-500/30 rounded-lg">
+                    <p className="font-semibold text-yellow-300">غير نشط</p>
+                    <p className="text-xs text-yellow-400">حسابك غير محمي. يوصى بتفعيله.</p>
                 </div>
             )}
             <div className="flex flex-col gap-2">
@@ -151,7 +152,7 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
                         {isLoading ? <Spinner /> : 'تفعيل'}
                     </button>
                 )}
-                <button onClick={onClose} className="w-full bg-gray-200 text-gray-700 font-bold p-3 rounded-lg">إغلاق</button>
+                <button onClick={onClose} className="w-full bg-gray-600 text-gray-200 font-bold p-3 rounded-lg">إغلاق</button>
             </div>
         </>
     );
@@ -159,10 +160,10 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
     const renderSetup = () => (
         <>
             <h3 className="font-bold text-lg mb-2 text-center">تفعيل التحقق بخطوتين</h3>
-            <p className="text-sm text-gray-600 mb-4 text-center leading-relaxed">أضف هذا المفتاح إلى تطبيق المصادقة الخاص بك (مثل Google Authenticator). لا يوجد رمز QR في هذا العرض التوضيحي، لذا يرجى نسخه يدويًا.</p>
-            <div className="bg-gray-100 p-3 rounded-lg text-center mb-4">
-                <p className="text-xs text-gray-500">المفتاح السري الخاص بك</p>
-                <p className="font-mono text-lg tracking-widest text-indigo-600">{secret}</p>
+            <p className="text-sm text-gray-300 mb-4 text-center leading-relaxed">أضف هذا المفتاح إلى تطبيق المصادقة الخاص بك (مثل Google Authenticator). لا يوجد رمز QR في هذا العرض التوضيحي، لذا يرجى نسخه يدويًا.</p>
+            <div className="bg-gray-700 p-3 rounded-lg text-center mb-4">
+                <p className="text-xs text-gray-400">المفتاح السري الخاص بك</p>
+                <p className="font-mono text-lg tracking-widest text-indigo-400">{secret}</p>
             </div>
             <div className="space-y-4">
                 <label className="block font-bold text-sm">أدخل الرمز المكون من 6 أرقام</label>
@@ -172,12 +173,12 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
                     value={totpCode}
                     onChange={e => setTotpCode(e.target.value)}
                     maxLength={6}
-                    className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-center tracking-[.5em]"
+                    className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-center tracking-[.5em]"
                 />
                 <button onClick={handleConfirmSetup} disabled={isLoading} className="w-full bg-indigo-500 text-white font-bold p-3 rounded-lg flex justify-center items-center disabled:bg-indigo-300">
                     {isLoading ? <Spinner /> : 'تأكيد وتفعيل'}
                 </button>
-                <button onClick={() => setStep('initial')} className="w-full bg-gray-200 text-gray-700 font-bold p-3 rounded-lg">رجوع</button>
+                <button onClick={() => setStep('initial')} className="w-full bg-gray-600 text-gray-200 font-bold p-3 rounded-lg">رجوع</button>
             </div>
         </>
     );
@@ -185,7 +186,7 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
     const renderDisable = () => (
         <>
             <h3 className="font-bold text-lg mb-2 text-center">تعطيل التحقق بخطوتين</h3>
-            <p className="text-sm text-gray-600 mb-4 text-center">لتعطيل هذه الميزة، يرجى إدخال رمز من تطبيق المصادقة الخاص بك.</p>
+            <p className="text-sm text-gray-300 mb-4 text-center">لتعطيل هذه الميزة، يرجى إدخال رمز من تطبيق المصادقة الخاص بك.</p>
             <div className="space-y-4">
                 <label className="block font-bold text-sm">أدخل الرمز المكون من 6 أرقام</label>
                 <input
@@ -194,19 +195,19 @@ const TwoFactorAuthModal: React.FC<{ onClose: () => void; }> = ({ onClose }) => 
                     value={totpCode}
                     onChange={e => setTotpCode(e.target.value)}
                     maxLength={6}
-                    className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-center tracking-[.5em]"
+                    className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-center tracking-[.5em]"
                 />
                 <button onClick={handleDisable} disabled={isLoading} className="w-full bg-red-500 text-white font-bold p-3 rounded-lg flex justify-center items-center disabled:bg-red-300">
                      {isLoading ? <Spinner /> : 'تأكيد التعطيل'}
                 </button>
-                <button onClick={() => setStep('initial')} className="w-full bg-gray-200 text-gray-700 font-bold p-3 rounded-lg">رجوع</button>
+                <button onClick={() => setStep('initial')} className="w-full bg-gray-600 text-gray-200 font-bold p-3 rounded-lg">رجوع</button>
             </div>
         </>
     );
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
                 {step === 'initial' && renderInitial()}
                 {step === 'setup' && renderSetup()}
                 {step === 'disable' && renderDisable()}
@@ -251,7 +252,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="bg-white rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm p-6 shadow-lg animate-scale-in text-right" onClick={e => e.stopPropagation()}>
                 <h3 className="font-bold text-lg mb-4 text-center">تغيير كلمة المرور</h3>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
@@ -261,7 +262,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
                                 type={visibility.old ? 'text' : 'password'}
                                 value={oldPassword}
                                 onChange={e => setOldPassword(e.target.value)}
-                                className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
+                                className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
                             />
                              <button type="button" onClick={() => toggleVisibility('old')} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                 {visibility.old ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
@@ -275,7 +276,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
                                 type={visibility.new ? 'text' : 'password'}
                                 value={newPassword}
                                 onChange={e => setNewPassword(e.target.value)}
-                                className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
+                                className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
                             />
                              <button type="button" onClick={() => toggleVisibility('new')} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                 {visibility.new ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
@@ -289,7 +290,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
                                 type={visibility.confirm ? 'text' : 'password'}
                                 value={confirmPassword}
                                 onChange={e => setConfirmPassword(e.target.value)}
-                                className="w-full p-3 rounded-lg border-gray-300 border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
+                                className="w-full p-3 rounded-lg border-gray-600 bg-gray-700 text-white border focus:ring-indigo-500 focus:border-indigo-500 text-right pl-12"
                             />
                              <button type="button" onClick={() => toggleVisibility('confirm')} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
                                 {visibility.confirm ? <EyeOffIcon className="w-5 h-5" /> : <EyeIcon className="w-5 h-5" />}
@@ -297,7 +298,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
                         </div>
                     </div>
                     <div className="flex gap-2 pt-2">
-                        <button type="button" onClick={onClose} className="w-full bg-gray-200 text-gray-700 font-bold p-3 rounded-lg">إلغاء</button>
+                        <button type="button" onClick={onClose} className="w-full bg-gray-600 text-gray-200 font-bold p-3 rounded-lg">إلغاء</button>
                         <button type="submit" disabled={isLoading} className="w-full bg-indigo-500 text-white font-bold p-3 rounded-lg flex justify-center items-center disabled:bg-indigo-300">
                             {isLoading ? <Spinner /> : 'حفظ التغييرات'}
                         </button>
@@ -311,6 +312,7 @@ const ChangePasswordModal: React.FC<{ onClose: () => void; }> = ({ onClose }) =>
 
 const AccountPage: React.FC = () => {
     const { currentUser, logout, updateEmail } = useAuth();
+    const { t, language, toggleLanguage } = useLanguage();
     const navigate = useNavigate();
     const [isConfirmingLogout, setIsConfirmingLogout] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -337,9 +339,10 @@ const AccountPage: React.FC = () => {
     };
     
     const unreadCount = currentUser?.notifications?.filter(n => !n.read).length || 0;
+    const chevronClass = `w-5 h-5 text-gray-500 transform ${language === 'en' ? 'scale-x-[-1]' : ''}`;
 
     return (
-        <div className="bg-gray-100 min-h-screen">
+        <div className="bg-gray-800 min-h-screen">
             {isConfirmingLogout && (
                 <ConfirmationModal 
                     title="تأكيد الخروج"
@@ -359,18 +362,18 @@ const AccountPage: React.FC = () => {
                     onSave={updateEmail}
                 />
             )}
-             <header className="bg-gradient-to-b from-indigo-400 to-indigo-600 h-52 p-4 text-white text-right relative">
+             <header className="bg-gradient-to-b from-indigo-400 to-indigo-600 h-52 p-4 text-white relative">
                 <div className="flex justify-between items-start">
                     <div className="flex items-center">
-                         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mr-4 shadow-md">
+                         <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center me-4 shadow-md">
                            <span className="font-bold text-indigo-500 text-lg">[R]</span>
                         </div>
-                        <div className="text-right">
+                        <div className="text-start">
                              <p className="font-bold text-sm">Refrigerators</p>
                              <p className="text-sm">+20 {currentUser?.phone}</p>
-                             <div className="flex items-center justify-end mt-1">
+                             <div className="flex items-center justify-start mt-1">
                                  <p className="text-xs bg-white/30 px-2 py-0.5 rounded-full">ID: {currentUser?.inviteCode}</p>
-                                 <button onClick={() => copyToClipboard(currentUser?.inviteCode || '')} className="ml-2">
+                                 <button onClick={() => copyToClipboard(currentUser?.inviteCode || '')} className="ms-2">
                                      <ClipboardIcon className="w-4 h-4 text-white" />
                                  </button>
                              </div>
@@ -383,120 +386,123 @@ const AccountPage: React.FC = () => {
                         )}
                     </Link>
                 </div>
-                <div className="mt-4 text-right grid grid-cols-2 gap-2">
+                <div className="mt-4 grid grid-cols-2 gap-2">
                     <div>
-                        <p className="text-xs">رصيد الحساب</p>
+                        <p className="text-xs">{t('accountBalance')}</p>
                         <p className="text-2xl font-bold">EGP {currentUser?.balance.toFixed(2)}</p>
                     </div>
                      <div>
-                        <p className="text-xs">إجمالي الإيرادات</p>
+                        <p className="text-xs">{t('totalRevenue')}</p>
                         <p className="text-2xl font-bold">EGP {currentUser?.totalRevenue.toFixed(2)}</p>
                     </div>
                 </div>
             </header>
             
             <main className="p-4 -mt-8 relative z-10">
-                <div className="bg-white rounded-xl shadow p-4 mb-4 card-enter">
+                <div className="bg-gray-700 text-gray-200 rounded-xl shadow p-4 mb-4 card-enter">
                     <div className="flex items-center justify-between mb-3">
-                        <h3 className="font-bold text-gray-800">معلومات الملف الشخصي</h3>
-                        <button onClick={() => setIsEditingProfile(true)} className="flex items-center gap-1 text-xs text-indigo-600 font-semibold">
+                        <h3 className="font-bold text-gray-100">{t('profileInformation')}</h3>
+                        <button onClick={() => setIsEditingProfile(true)} className="flex items-center gap-1 text-xs text-indigo-400 font-semibold">
                             <PencilIcon className="w-3 h-3" />
-                            <span>تعديل</span>
+                            <span>{t('edit')}</span>
                         </button>
                     </div>
-                    <div className="flex items-center gap-4 text-right">
-                        <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
                             <UserCircleIcon className="w-10 h-10 text-gray-400" />
                         </div>
                         <div className="flex-grow">
                             <div className="mb-2">
-                                <p className="text-xs text-gray-500">اسم المستخدم</p>
-                                <p className="font-semibold text-gray-800">+20 {currentUser?.phone}</p>
+                                <p className="text-xs text-gray-400">{t('username')}</p>
+                                <p className="font-semibold text-gray-100">+20 {currentUser?.phone}</p>
                             </div>
                             <div>
-                                <p className="text-xs text-gray-500">البريد الإلكتروني</p>
-                                <p className="font-semibold text-gray-700 truncate">{currentUser?.email || <span className="text-gray-500 italic">لم يتم تعيين بريد إلكتروني</span>}</p>
+                                <p className="text-xs text-gray-400">{t('email')}</p>
+
+                                <p className="font-semibold text-gray-200 truncate">{currentUser?.email || <span className="text-gray-400 italic">{t('emailNotSet')}</span>}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow p-4 text-center mb-4 card-enter">
+                <div className="bg-gray-700 rounded-xl shadow p-4 text-center mb-4 card-enter">
                     <div className="flex justify-around">
                         <Link to="/recharge" className="flex flex-col items-center transition-transform hover:scale-105">
-                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mb-1">
-                                <UploadCloudIcon className="w-6 h-6 text-indigo-500" />
+                            <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center mb-1">
+                                <UploadCloudIcon className="w-6 h-6 text-indigo-400" />
                             </div>
-                            <p className="text-sm text-gray-700">إعادة الشحن</p>
+                            <p className="text-sm text-gray-300">{t('recharge')}</p>
                         </Link>
                         <Link to="/withdraw" className="flex flex-col items-center transition-transform hover:scale-105">
-                            <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center mb-1">
-                                <DownloadCloudIcon className="w-6 h-6 text-indigo-500" />
+                            <div className="w-12 h-12 rounded-full bg-gray-600 flex items-center justify-center mb-1">
+                                <DownloadCloudIcon className="w-6 h-6 text-indigo-400" />
                             </div>
-                            <p className="text-sm text-gray-700">ينسحب</p>
+                            <p className="text-sm text-gray-300">{t('withdraw')}</p>
                         </Link>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow overflow-hidden mb-4 card-enter" style={{ animationDelay: '100ms' }}>
-                     <Link to="/records" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
+                <div className="bg-gray-700 rounded-xl shadow overflow-hidden mb-4 card-enter" style={{ animationDelay: '100ms' }}>
+                     <Link to="/records" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
                          <div className="flex items-center">
-                             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <WalletIcon className="w-5 h-5 text-indigo-500"/>
+                             <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <WalletIcon className="w-5 h-5 text-indigo-400"/>
                             </div>
-                            <span className="font-semibold text-gray-700">سجل الرصيد</span>
+                            <span className="font-semibold text-gray-200">{t('balanceRecord')}</span>
                          </div>
-                         <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                         <ChevronLeftIcon className={chevronClass} />
                      </Link>
-                     <Link to="/my-products" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
+                     <Link to="/my-products" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
                          <div className="flex items-center">
-                             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <DollarSignIcon className="w-5 h-5 text-indigo-500"/>
+                             <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <DollarSignIcon className="w-5 h-5 text-indigo-400"/>
                             </div>
-                            <span className="font-semibold text-gray-700">أجهزتي</span>
+                            <span className="font-semibold text-gray-200">{t('myDevices')}</span>
                          </div>
-                         <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                         <ChevronLeftIcon className={chevronClass} />
                      </Link>
-                     <button onClick={() => setShowPasswordModal(true)} className="w-full flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50 text-right">
+                     <button onClick={() => setShowPasswordModal(true)} className="w-full flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <LockIcon className="w-5 h-5 text-indigo-500"/>
+                            <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <LockIcon className="w-5 h-5 text-indigo-400"/>
                             </div>
-                            <span className="font-semibold text-gray-700">تغيير كلمة المرور</span>
+                            <span className="font-semibold text-gray-200">{t('changePassword')}</span>
                         </div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                        <ChevronLeftIcon className={chevronClass} />
                      </button>
-                     <button onClick={() => setShow2FAModal(true)} className="w-full flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50 text-right">
+                     <button onClick={() => setShow2FAModal(true)} className="w-full flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
                          <div className="flex items-center">
-                             <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <ShieldIcon className="w-5 h-5 text-indigo-500"/>
+                             <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <ShieldIcon className="w-5 h-5 text-indigo-400"/>
                             </div>
-                            <span className="font-semibold text-gray-700">التحقق بخطوتين</span>
+                            <span className="font-semibold text-gray-200">{t('twoFactorAuth')}</span>
                          </div>
                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold ${currentUser?.isTwoFactorEnabled ? 'text-green-600' : 'text-red-600'}`}>
-                                {currentUser?.isTwoFactorEnabled ? 'نشط' : 'غير نشط'}
+                            <span className={`text-xs font-bold ${currentUser?.isTwoFactorEnabled ? 'text-green-400' : 'text-red-400'}`}>
+                                {currentUser?.isTwoFactorEnabled ? t('active') : t('inactive')}
                             </span>
-                            <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                            <ChevronLeftIcon className={chevronClass} />
                          </div>
                      </button>
-                     <Link to="/admin" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
-                        <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <SettingsIcon className="w-5 h-5 text-indigo-500" />
+                    {currentUser?.phone === '1141510849' &&
+                        <Link to="/admin" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                            <div className="flex items-center">
+                                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                    <SettingsIcon className="w-5 h-5 text-indigo-400" />
+                                </div>
+                                <span className="font-semibold text-gray-200">{t('adminPanel')}</span>
                             </div>
-                            <span className="font-semibold text-gray-700">لوحة التحكم للمسؤول</span>
-                        </div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
-                    </Link>
+                            <ChevronLeftIcon className={chevronClass} />
+                        </Link>
+                    }
                      <div className="flex items-center justify-between p-4">
                         <div className="flex items-center">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3">
-                                <CalendarIcon className="w-5 h-5 text-indigo-500" />
+                            <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <CalendarIcon className="w-5 h-5 text-indigo-400" />
                             </div>
-                            <span className="font-semibold text-gray-700">آخر تسجيل دخول</span>
+                            <span className="font-semibold text-gray-200">{t('lastLogin')}</span>
                         </div>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-gray-400">
                             {currentUser && new Date(currentUser.lastLogin).toLocaleString('ar-EG', {
                                 year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                             })}
@@ -504,31 +510,49 @@ const AccountPage: React.FC = () => {
                     </div>
                 </div>
                 
-                <div className="bg-white rounded-xl shadow overflow-hidden mb-4 card-enter" style={{ animationDelay: '200ms' }}>
-                    <Link to="/withdraw" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
-                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3"><WalletIcon className="w-5 h-5 text-indigo-500" /></div><span className="font-semibold text-gray-700">إدارة حساب المحفظة</span></div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                <div className="bg-gray-700 rounded-xl shadow overflow-hidden mb-4 card-enter" style={{ animationDelay: '200ms' }}>
+                    <Link to="/withdraw" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3"><WalletIcon className="w-5 h-5 text-indigo-400" /></div><span className="font-semibold text-gray-200">{t('manageWallet')}</span></div>
+                        <ChevronLeftIcon className={chevronClass} />
                     </Link>
-                    <Link to="/customer-service" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
-                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3"><MessageCircleIcon className="w-5 h-5 text-indigo-500" /></div><span className="font-semibold text-gray-700">مساعدة</span></div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                    <Link to="/support-chat" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3"><MessageCircleIcon className="w-5 h-5 text-indigo-400" /></div><span className="font-semibold text-gray-200">الدعم المباشر بالذكاء الاصطناعي</span></div>
+                        <ChevronLeftIcon className={chevronClass} />
                     </Link>
-                     <Link to="/platform-rules" className="flex items-center justify-between p-4 border-b transition-colors hover:bg-gray-50">
-                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3"><BookOpenIcon className="w-5 h-5 text-indigo-500" /></div><span className="font-semibold text-gray-700">قواعد الثلاجات</span></div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                    <Link to="/customer-service" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3"><MessageCircleIcon className="w-5 h-5 text-indigo-400" /></div><span className="font-semibold text-gray-200">{t('help')}</span></div>
+                        <ChevronLeftIcon className={chevronClass} />
                     </Link>
-                     <Link to="/about-us" className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50">
-                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center mr-3"><InfoIcon className="w-5 h-5 text-indigo-500" /></div><span className="font-semibold text-gray-700">معلومات عنا</span></div>
-                        <ChevronLeftIcon className="w-5 h-5 text-gray-400 transform scale-x-[-1]" />
+                     <Link to="/platform-rules" className="flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3"><BookOpenIcon className="w-5 h-5 text-indigo-400" /></div><span className="font-semibold text-gray-200">{t('refrigeratorRules')}</span></div>
+                        <ChevronLeftIcon className={chevronClass} />
+                    </Link>
+                    <button onClick={toggleLanguage} className="w-full flex items-center justify-between p-4 border-b border-gray-600 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center">
+                            <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3">
+                                <GlobeIcon className="w-5 h-5 text-indigo-400"/>
+                            </div>
+                            <span className="font-semibold text-gray-200">{t('language')}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <span className="text-sm text-gray-400">
+                                {language === 'ar' ? t('arabic') : t('english')}
+                            </span>
+                            <ChevronLeftIcon className={chevronClass} />
+                        </div>
+                    </button>
+                     <Link to="/about-us" className="flex items-center justify-between p-4 transition-colors hover:bg-gray-600">
+                        <div className="flex items-center"><div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center me-3"><InfoIcon className="w-5 h-5 text-indigo-400" /></div><span className="font-semibold text-gray-200">{t('aboutUs')}</span></div>
+                        <ChevronLeftIcon className={chevronClass} />
                     </Link>
                 </div>
                 
-                <div className="bg-white rounded-xl shadow p-4 mt-6 card-enter" style={{ animationDelay: '300ms' }}>
+                <div className="bg-gray-700 rounded-xl shadow p-4 mt-6 card-enter" style={{ animationDelay: '300ms' }}>
                     <button 
                         onClick={() => setIsConfirmingLogout(true)} 
                         className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-lg transition-all duration-300 ease-in-out active:scale-95"
                     >
-                        تسجيل الخروج
+                        {t('logout')}
                     </button>
                 </div>
             </main>

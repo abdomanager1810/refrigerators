@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
@@ -20,8 +21,12 @@ import MyProductsPage from './pages/MyProductsPage';
 import { ProductsProvider } from './hooks/useProducts';
 import SubordinatesDataPage from './pages/SubordinatesDataPage';
 import ProductDetailPage from './pages/ProductDetailPage';
+// FIX: Changed import to default import as AdminPage is a default export.
 import AdminPage from './pages/AdminPage';
-import { SiteDataProvider } from './hooks/useSiteData';
+import { SiteConfigProvider } from './hooks/useSiteConfig';
+import { LanguageProvider } from './hooks/useLanguage';
+import { ChatProvider } from './hooks/useChat';
+import SupportChatPage from './pages/SupportChatPage';
 
 const ProtectedRoutes: React.FC = () => {
     const { currentUser } = useAuth();
@@ -30,7 +35,7 @@ const ProtectedRoutes: React.FC = () => {
 
 const AppContent: React.FC = () => {
     return (
-        <div className="bg-slate-100 min-h-screen font-sans">
+        <div className="bg-gray-900 min-h-screen font-sans">
             <HashRouter>
                 <Routes>
                     <Route path="/login" element={<LoginPage />} />
@@ -52,6 +57,7 @@ const AppContent: React.FC = () => {
                         <Route path="/about-us" element={<AboutUsPage />} />
                         <Route path="/my-products" element={<MyProductsPage />} />
                         <Route path="/subordinates-data" element={<SubordinatesDataPage />} />
+                        <Route path="/support-chat" element={<SupportChatPage />} />
                     </Route>
                      <Route path="*" element={<Navigate to="/" />} />
                 </Routes>
@@ -62,13 +68,17 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
     return (
-        <SiteDataProvider>
-            <ProductsProvider>
-                <AuthProvider>
-                    <AppContent />
-                </AuthProvider>
-            </ProductsProvider>
-        </SiteDataProvider>
+        <LanguageProvider>
+            <SiteConfigProvider>
+                <ProductsProvider>
+                    <AuthProvider>
+                        <ChatProvider>
+                            <AppContent />
+                        </ChatProvider>
+                    </AuthProvider>
+                </ProductsProvider>
+            </SiteConfigProvider>
+        </LanguageProvider>
     );
 };
 

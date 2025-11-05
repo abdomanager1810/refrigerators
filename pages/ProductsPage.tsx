@@ -17,12 +17,12 @@ const SellConfirmationModal: React.FC<{
 }> = ({ onConfirm, onCancel, productName, sellPrice, isLoading }) => {
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-sm text-center p-6 shadow-lg animate-scale-in">
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm text-center p-6 shadow-lg animate-scale-in">
                 <h3 className="font-bold text-lg mb-2">تأكيد البيع</h3>
-                <p className="text-gray-600 mb-2">هل أنت متأكد أنك تريد بيع {productName}؟</p>
-                <p className="text-gray-700 font-semibold mb-6">ستسترد: <span className="text-indigo-600">EGP {sellPrice.toFixed(2)}</span></p>
+                <p className="text-gray-300 mb-2">هل أنت متأكد أنك تريد بيع {productName}؟</p>
+                <p className="text-gray-200 font-semibold mb-6">ستسترد: <span className="text-indigo-400">EGP {sellPrice.toFixed(2)}</span></p>
                 <div className="flex justify-center gap-4">
-                    <button onClick={onCancel} disabled={isLoading} className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md">إلغاء</button>
+                    <button onClick={onCancel} disabled={isLoading} className="px-6 py-2 bg-gray-600 text-gray-200 rounded-md">إلغاء</button>
                     <button 
                         onClick={onConfirm} 
                         disabled={isLoading}
@@ -93,27 +93,27 @@ const ProductCard: React.FC<{
                     isLoading={isSelling}
                 />
             )}
-            <div className="bg-white rounded-xl shadow-md transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 overflow-hidden flex flex-col h-full">
-                <div className="w-full h-32 bg-gray-100 flex items-center justify-center p-2">
+            <div className="bg-gray-700 rounded-xl shadow-md transition-all duration-300 ease-in-out hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1 overflow-hidden flex flex-col h-full">
+                <div className="w-full h-32 bg-gray-800 flex items-center justify-center p-2">
                     <img src={product.iconUrl} alt={product.title} className="max-w-full max-h-full object-contain" />
                 </div>
-                <div className="p-3 flex flex-col text-right text-gray-600 flex-grow">
-                    <h3 className="font-bold text-gray-800 text-sm mb-1 truncate">{product.title}</h3>
+                <div className="p-3 flex flex-col text-right text-gray-300 flex-grow">
+                    <h3 className="font-bold text-gray-100 text-sm mb-1 truncate">{product.title}</h3>
                      <div className="text-xs mb-2">
-                        <p className="text-indigo-600 font-semibold">EGP {product.price.toLocaleString()}</p>
-                        <p className="text-green-600">+{product.dailyIncome.toLocaleString()} / يوم</p>
+                        <p className="text-indigo-400 font-semibold">EGP {product.price.toLocaleString()}</p>
+                        <p className="text-green-400">+{product.dailyIncome.toLocaleString()} / يوم</p>
                     </div>
-                    <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-2">{product.description}</p>
+                    <p className="text-xs text-gray-400 leading-relaxed line-clamp-2 mb-2">{product.description}</p>
                     <div className="mt-auto">
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+                        <div className="w-full bg-gray-600 rounded-full h-1.5 mb-1">
                             <div className="bg-indigo-500 h-1.5 rounded-full" style={{width: `${(remaining/product.totalQuantity)*100}%`}}></div>
                         </div>
                         <p className="text-xs text-gray-400">المتبقي: {remaining}</p>
                     </div>
                 </div>
-                <div className="p-2 bg-gray-50">
+                <div className="p-2 bg-gray-800">
                      {isLimitReached ? (
-                        <button disabled className="w-full py-2 bg-gray-400 text-white rounded-lg text-xs font-bold cursor-not-allowed">
+                        <button disabled className="w-full py-2 bg-gray-500 text-white rounded-lg text-xs font-bold cursor-not-allowed">
                             الحد الأقصى
                         </button>
                     ) : !isGloballySoldOut ? (
@@ -124,7 +124,7 @@ const ProductCard: React.FC<{
                             'يشترى'
                         </button>
                     ) : (
-                        <button disabled className="w-full py-2 bg-gray-400 text-white rounded-lg text-xs font-bold cursor-not-allowed">
+                        <button disabled className="w-full py-2 bg-gray-500 text-white rounded-lg text-xs font-bold cursor-not-allowed">
                             بيعت كلها
                         </button>
                     )}
@@ -136,22 +136,22 @@ const ProductCard: React.FC<{
 
 const EmptyState: React.FC = () => (
     <div className="text-center py-20 card-enter">
-        <div className="w-32 h-32 bg-gray-200 rounded-lg flex items-center justify-center mx-auto mb-4">
-             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+        <div className="w-32 h-32 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
+             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
         </div>
-        <p className="text-gray-500">ليس لديك أجهزة حتى الآن.</p>
-        <p className="text-sm text-gray-400 mt-2">قم بزيارة صفحة المنتج لشراء جهازك الأول.</p>
+        <p className="text-gray-400">ليس لديك أجهزة حتى الآن.</p>
+        <p className="text-sm text-gray-500 mt-2">قم بزيارة صفحة المنتج لشراء جهازك الأول.</p>
     </div>
 );
 
 const IncomeHistory: React.FC<{ transactions: Transaction[] }> = ({ transactions }) => {
     if (transactions.length === 0) {
-        return <p className="text-center text-sm text-gray-500 py-4">لا يوجد سجل دخل لهذا الجهاز حتى الآن.</p>;
+        return <p className="text-center text-sm text-gray-400 py-4">لا يوجد سجل دخل لهذا الجهاز حتى الآن.</p>;
     }
 
     return (
-        <div className="bg-gray-100 p-2 rounded-b-lg text-xs space-y-px">
-            <div className="grid grid-cols-3 text-gray-500 font-bold p-1">
+        <div className="bg-gray-800 p-2 rounded-b-lg text-xs space-y-px">
+            <div className="grid grid-cols-3 text-gray-400 font-bold p-1">
                 <span>تاريخ</span>
                 <span className="text-center">وصف</span>
                 <span className="text-left">كمية</span>
@@ -161,13 +161,13 @@ const IncomeHistory: React.FC<{ transactions: Transaction[] }> = ({ transactions
                 const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
                 const formattedTime = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
                 return (
-                    <div key={tx.id} className="grid grid-cols-3 bg-white p-1.5 rounded items-center">
-                        <div className="text-gray-500">
+                    <div key={tx.id} className="grid grid-cols-3 bg-gray-700 p-1.5 rounded items-center">
+                        <div className="text-gray-400">
                            <p>{formattedDate}</p>
                            <p>{formattedTime}</p>
                         </div>
-                        <p className="text-center text-gray-700">{tx.description}</p>
-                        <p className="text-left font-semibold text-green-600">+{tx.amount.toFixed(2)}</p>
+                        <p className="text-center text-gray-300">{tx.description}</p>
+                        <p className="text-left font-semibold text-green-400">+{tx.amount.toFixed(2)}</p>
                     </div>
                 )
             })}
@@ -198,22 +198,22 @@ const PurchasedProductCard: React.FC<{
     const totalEarned = incomeHistory.reduce((sum, tx) => sum + tx.amount, 0);
 
     return (
-        <div className="bg-white rounded-lg shadow-md text-sm text-gray-600 card-enter" style={{ animationDelay: `${index * 100}ms` }}>
+        <div className="bg-gray-700 rounded-lg shadow-md text-sm text-gray-300 card-enter" style={{ animationDelay: `${index * 100}ms` }}>
             <div className="p-3 flex gap-4">
-                <div className="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 p-2">
+                <div className="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center flex-shrink-0 p-2">
                     <img src={productDetails.iconUrl} alt={productDetails.title} className="w-full h-full object-contain" />
                 </div>
                 <div className="flex-1 text-right">
-                    <h3 className="font-bold text-gray-800 text-base mb-1">{productDetails.title}</h3>
+                    <h3 className="font-bold text-gray-100 text-base mb-1">{productDetails.title}</h3>
                     <p>تاريخ الشراء: {purchaseDate.toLocaleDateString('ar-EG')}</p>
                     <p>تنتهي في: {expiryDate.toLocaleDateString('ar-EG')}</p>
                     <p>الدخل اليومي: EGP {productDetails.dailyIncome.toLocaleString()}</p>
-                    <p className="font-bold text-indigo-600">إجمالي الدخل المكتسب: EGP {totalEarned.toFixed(2)}</p>
+                    <p className="font-bold text-indigo-400">إجمالي الدخل المكتسب: EGP {totalEarned.toFixed(2)}</p>
                 </div>
             </div>
              <button 
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="w-full bg-gray-50 hover:bg-gray-100 p-2 border-t text-xs font-semibold text-indigo-600 flex justify-center items-center gap-1"
+                className="w-full bg-gray-600 hover:bg-gray-500 p-2 border-t border-gray-600 text-xs font-semibold text-indigo-400 flex justify-center items-center gap-1"
              >
                 <span>سجل الدخل</span>
                 <ChevronLeftIcon className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : '-rotate-90'}`} />
@@ -270,9 +270,9 @@ const ProductsPage: React.FC = () => {
                         placeholder="ابحث عن أي منتج..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full p-3 pl-10 border border-gray-300 rounded-lg text-right"
+                        className="w-full p-3 pl-10 border border-gray-600 bg-gray-700 text-white rounded-lg text-right placeholder-gray-400"
                     />
-                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
                 </div>
     
                 <div className="flex overflow-x-auto space-x-2 space-x-reverse pb-2 -mx-4 px-4 no-scrollbar">
@@ -283,7 +283,7 @@ const ProductsPage: React.FC = () => {
                             className={`px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
                                 selectedCategoryId === category.id 
                                 ? 'bg-indigo-600 text-white shadow' 
-                                : 'bg-white text-gray-700'
+                                : 'bg-gray-600 text-gray-200'
                             }`}
                         >
                             {category.name}
@@ -302,8 +302,8 @@ const ProductsPage: React.FC = () => {
                 
                 {displayedProducts.length === 0 && (
                     <div className="text-center py-10">
-                        <SearchIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">لا توجد منتجات مطابقة في هذه الفئة.</p>
+                        <SearchIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                        <p className="text-gray-400">لا توجد منتجات مطابقة في هذه الفئة.</p>
                     </div>
                 )}
             </div>
@@ -312,7 +312,7 @@ const ProductsPage: React.FC = () => {
     
 
     return (
-        <div className="bg-gray-100">
+        <div className="bg-gray-800">
              <header className="bg-gradient-to-b from-indigo-400 to-indigo-600 h-40 p-4 text-white text-right relative">
                 <button onClick={() => navigate(-1)} className="absolute top-2 right-2 p-2 z-10">
                     <ChevronLeftIcon className="w-6 h-6 transform scale-x-[-1]" />
@@ -332,22 +332,22 @@ const ProductsPage: React.FC = () => {
                         <p className="text-lg font-bold">{myDevicesCount}</p>
                         <p className="text-xs">أجهزتي</p>
                     </div>
-                     <div className="bg-white text-gray-700 p-3 rounded-lg text-center shadow card-enter" style={{ animationDelay: '50ms' }}>
+                     <div className="bg-gray-700 text-gray-200 p-3 rounded-lg text-center shadow card-enter" style={{ animationDelay: '50ms' }}>
                         <p className="text-lg font-bold">EGP {totalRevenue}</p>
                         <p className="text-xs">إجمالي الإيرادات</p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-lg shadow p-1 flex justify-around card-enter">
+                <div className="bg-gray-700 rounded-lg shadow p-1 flex justify-around card-enter">
                     <button
                         onClick={() => setActiveTab('all')}
-                        className={`w-full py-2 text-sm font-semibold rounded-md transition-colors ${activeTab === 'all' ? 'bg-indigo-500 text-white shadow' : 'text-gray-600'}`}
+                        className={`w-full py-2 text-sm font-semibold rounded-md transition-colors ${activeTab === 'all' ? 'bg-indigo-500 text-white shadow' : 'text-gray-400'}`}
                     >
                         جميع المنتجات
                     </button>
                     <button
                         onClick={() => setActiveTab('my')}
-                        className={`w-full py-2 text-sm font-semibold rounded-md transition-colors ${activeTab === 'my' ? 'bg-indigo-500 text-white shadow' : 'text-gray-600'}`}
+                        className={`w-full py-2 text-sm font-semibold rounded-md transition-colors ${activeTab === 'my' ? 'bg-indigo-500 text-white shadow' : 'text-gray-400'}`}
                     >
                         منتجاتي ({purchasedProducts.length})
                     </button>

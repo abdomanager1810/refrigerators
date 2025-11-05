@@ -79,39 +79,39 @@ const ProductDetailPage: React.FC = () => {
 
     return (
         <SubPageLayout title="تفاصيل المنتج">
-            <div className="bg-white min-h-screen">
-                <div className="w-full h-56 bg-gray-100 flex items-center justify-center p-4">
+            <div className="bg-gray-800 text-gray-200 min-h-screen">
+                <div className="w-full h-56 bg-gray-700 flex items-center justify-center p-4">
                     <img src={iconUrl} alt={title} className="max-w-full max-h-full object-contain" />
                 </div>
                 <div className="p-4 text-right space-y-6">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-800 mb-2">{title}</h1>
-                        <p className="text-gray-600 leading-relaxed">{description}</p>
+                        <h1 className="text-2xl font-bold text-gray-100 mb-2">{title}</h1>
+                        <p className="text-gray-300 leading-relaxed">{description}</p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div className="text-right p-3 bg-indigo-50 rounded-lg">
-                            <p className="text-xs text-indigo-800">السعر</p>
-                            <p className="font-bold text-indigo-600 text-lg">EGP {price.toLocaleString()}</p>
+                        <div className="text-right p-3 bg-indigo-500/20 rounded-lg">
+                            <p className="text-xs text-indigo-300">السعر</p>
+                            <p className="font-bold text-indigo-400 text-lg">EGP {price.toLocaleString()}</p>
                         </div>
-                        <div className="text-right p-3 bg-green-50 rounded-lg">
-                            <p className="text-xs text-green-800">الدخل اليومي</p>
-                            <p className="font-bold text-green-600 text-lg">EGP {dailyIncome.toLocaleString()}</p>
+                        <div className="text-right p-3 bg-green-500/20 rounded-lg">
+                            <p className="text-xs text-green-300">الدخل اليومي</p>
+                            <p className="font-bold text-green-400 text-lg">EGP {dailyIncome.toLocaleString()}</p>
                         </div>
-                         <div className="text-right p-3 bg-gray-100 rounded-lg">
-                            <p className="text-xs text-gray-500">فترة الصلاحية</p>
-                            <p className="font-semibold text-gray-700">{validity} يوم</p>
+                         <div className="text-right p-3 bg-gray-700 rounded-lg">
+                            <p className="text-xs text-gray-400">فترة الصلاحية</p>
+                            <p className="font-semibold text-gray-200">{validity} يوم</p>
                         </div>
-                        <div className="text-right p-3 bg-gray-100 rounded-lg">
-                            <p className="text-xs text-gray-500">المتبقي</p>
-                            <p className="font-semibold text-gray-700">{remaining} / {totalQuantity}</p>
+                        <div className="text-right p-3 bg-gray-700 rounded-lg">
+                            <p className="text-xs text-gray-400">المتبقي</p>
+                            <p className="font-semibold text-gray-200">{remaining} / {totalQuantity}</p>
                         </div>
                     </div>
                     
                     <button
                         onClick={handlePurchase}
                         disabled={isBuying || isGloballySoldOut || isLimitReached}
-                        className="w-full p-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-lg font-bold transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center"
+                        className="w-full p-4 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-lg font-bold transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed flex justify-center items-center"
                     >
                         {isBuying ? <Spinner /> : getButtonText()}
                     </button>

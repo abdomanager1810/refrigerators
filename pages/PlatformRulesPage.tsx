@@ -1,5 +1,6 @@
 import React from 'react';
 import SubPageLayout from '../components/SubPageLayout';
+import { useSiteConfig } from '../hooks/useSiteConfig';
 
 const rulesData = [
     { name: 'Smart hosting 01', price: 200, daily: 60, total: 3600, days: 60 },
@@ -14,12 +15,14 @@ const rulesData = [
 ];
 
 const PlatformRulesPage: React.FC = () => {
+    const { config } = useSiteConfig();
+    
     return (
         <SubPageLayout title="قواعد المنصة">
-            <div className="bg-white p-4 text-gray-800">
+            <div className="bg-gray-800 p-4 text-gray-200">
                 <div className="overflow-x-auto">
                     <table className="min-w-full text-center text-sm">
-                        <thead className="bg-indigo-50">
+                        <thead className="bg-indigo-500/20 text-gray-100">
                             <tr>
                                 <th className="p-2">تتولى</th>
                                 <th className="p-2">السعر</th>
@@ -30,7 +33,7 @@ const PlatformRulesPage: React.FC = () => {
                         </thead>
                         <tbody>
                             {rulesData.map((item, index) => (
-                                <tr key={item.name} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                                <tr key={item.name} className={index % 2 === 0 ? 'bg-gray-700' : 'bg-gray-700/50'}>
                                     <td className="p-2 whitespace-nowrap">{item.name}</td>
                                     <td className="p-2">EGP {item.price}</td>
                                     <td className="p-2">EGP {item.daily}</td>
@@ -42,17 +45,8 @@ const PlatformRulesPage: React.FC = () => {
                     </table>
                 </div>
 
-                 <div className="mt-6 text-right text-sm text-gray-700 space-y-4 leading-relaxed">
-                    <p>هي شركة رائدة في مجال التداول الخوارزمي للعملات الأجنبية والعملات المشفرة باستخدام الذكاء الاصطناعي. نحن نستخدم الذكاء الاصطناعي المتقدم لتحسين استراتيجيات التداول، وتعزيز كفاءة السوق، ومساعدة العملاء في تحقيق عوائد استثمارية فائقة، مما يتيح للعملاء العالميين الاستفادة من الخدمات المالية الذكية.</p>
-                    <p>عندما يقوم صديق قمت بدعوته بالتسجيل والاستثمار، ستحصل على الفور على مكافأة نقدية تعادل 35% من مبلغ استثماره.</p>
-                    <p>عندما يستثمر أعضاء فريقك من المستوى 2، ستحصل على مكافأة نقدية بنسبة 2%.</p>
-                    <p>عندما يستثمر أعضاء فريقك من المستوى 3، ستحصل على مكافأة نقدية بنسبة 1%.</p>
-                    <p>بمجرد أن يستثمر أعضاء فريقك، ستضاف المكافآت النقدية على الفور إلى رصيد حسابك وستكون متاحة للسحب فورا.</p>
-                    <p>1. استثمر 200 جنيه مصري، واسحب 100 جنيه مصري.</p>
-                    <p>2. مكافأة التسجيل: 100 جنيه مصري. يمكن سحبها بعد الإيداع.</p>
-                    <p>3. مكافأة تسجيل الدخول اليومية: 5 جنيهات مصرية.</p>
-                    <p>4. قم بإحالة شركاء للاستثمار واحصل على مكافأة نقدية بنسبة 38% من مبلغ استثماراتهم.</p>
-                    <p>5. يمكن أن تصل عوائد الاستثمار إلى 2100% - انضم الآن.</p>
+                 <div className="mt-6 text-right text-sm text-gray-300 space-y-4 leading-relaxed whitespace-pre-line">
+                    {config.platformRulesContent}
                 </div>
             </div>
         </SubPageLayout>

@@ -40,9 +40,9 @@ const EWalletInputModal: React.FC<{ onConfirm: (wallet: string) => void; }> = ({
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg w-full max-w-md text-center p-6 shadow-lg">
+            <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-md text-center p-6 shadow-lg">
                 <h3 className="font-bold text-lg mb-2">يرجى ملء رقم المحفظة الإلكترونية الصحيح لتأكيد الدفع.</h3>
-                <p className="text-gray-600 mb-6 text-sm">إذا طلبت من شخص آخر الدفع نيابة عنك، فيرجى التأكد من صحة رقم المحفظة الإلكترونية للدفع.</p>
+                <p className="text-gray-300 mb-6 text-sm">إذا طلبت من شخص آخر الدفع نيابة عنك، فيرجى التأكد من صحة رقم المحفظة الإلكترونية للدفع.</p>
                 <div className="flex justify-center gap-1 mb-6" dir="ltr">
                     {wallet.map((digit, index) => (
                         <input
@@ -53,7 +53,7 @@ const EWalletInputModal: React.FC<{ onConfirm: (wallet: string) => void; }> = ({
                             value={digit}
                             onChange={(e) => handleChange(e, index)}
                             onKeyDown={(e) => handleKeyDown(e, index)}
-                            className="w-8 h-10 text-center border-b-2 border-gray-300 focus:border-indigo-500 outline-none text-lg"
+                            className="w-8 h-10 text-center border-b-2 border-gray-500 bg-gray-800 text-white focus:border-indigo-500 outline-none text-lg"
                         />
                     ))}
                 </div>
@@ -67,12 +67,12 @@ const EWalletInputModal: React.FC<{ onConfirm: (wallet: string) => void; }> = ({
 
 const ReminderModal: React.FC<{ amount: number; onClose: () => void; }> = ({ amount, onClose }) => (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-lg w-full max-w-sm text-center p-6 shadow-lg">
+        <div className="bg-gray-800 text-gray-200 rounded-lg w-full max-w-sm text-center p-6 shadow-lg">
             <h3 className="font-bold text-lg mb-4">تذكير هام</h3>
-            <p className="text-gray-600 mb-2">تذكر، المبلغ الذي تحتاج إلى دفعه هو:</p>
-            <p className="text-3xl font-bold text-indigo-500 mb-2">{amount.toLocaleString()} EGP</p>
-            <p className="text-sm text-red-500 mb-6">سيؤدي مبلغ الدفع غير الصحيح إلى عدم الوصول السريع.</p>
-            <button onClick={onClose} className="w-full px-6 py-2 bg-gray-200 text-gray-700 rounded-md">موافق</button>
+            <p className="text-gray-300 mb-2">تذكر، المبلغ الذي تحتاج إلى دفعه هو:</p>
+            <p className="text-3xl font-bold text-indigo-400 mb-2">{amount.toLocaleString()} EGP</p>
+            <p className="text-sm text-red-400 mb-6">سيؤدي مبلغ الدفع غير الصحيح إلى عدم الوصول السريع.</p>
+            <button onClick={onClose} className="w-full px-6 py-2 bg-gray-600 text-gray-200 rounded-md">موافق</button>
         </div>
     </div>
 );
@@ -134,7 +134,7 @@ const PaymentPage: React.FC = () => {
     const handleSubmitPayment = async () => {
         setIsLoading(true);
         try {
-            await requestRecharge(amount);
+            await requestRecharge(amount, userWallet);
             showToast(`تم تقديم طلب الشحن الخاص بك بمبلغ ${amount.toFixed(2)} جنيه وهو قيد المراجعة الآن.`);
             navigate('/records');
         } catch(error) {
@@ -151,48 +151,48 @@ const PaymentPage: React.FC = () => {
             {modal === 'ewallet' && <EWalletInputModal onConfirm={handleWalletConfirm} />}
             {modal === 'reminder' && <ReminderModal amount={amount} onClose={handleReminderClose} />}
             
-            <div className="p-4 space-y-4 text-center">
+            <div className="p-4 space-y-4 text-center text-gray-300">
                 <p>يجب عليك إكمال الدفع في غضون المهلة الزمنية التالية:</p>
-                <p className="text-4xl font-bold text-indigo-500 my-4">{formatTime(timeLeft)}</p>
+                <p className="text-4xl font-bold text-indigo-400 my-4">{formatTime(timeLeft)}</p>
 
                 {step === 'showDetails' && (
                     <>
-                        <div className="bg-orange-100 border border-orange-300 text-orange-800 p-3 rounded-lg text-right">
+                        <div className="bg-orange-900/50 border border-orange-500/50 text-orange-300 p-3 rounded-lg text-right">
                              <p className="font-bold mb-2">يرجى التحقق من المحفظة الإلكترونية الصحيحة للدفع:</p>
                              <div className="flex justify-between items-center">
                                 <span className="font-mono text-lg">{userWallet}</span>
-                                <button onClick={() => setModal('ewallet')} className="text-sm text-indigo-600">تعديل</button>
+                                <button onClick={() => setModal('ewallet')} className="text-sm text-indigo-400">تعديل</button>
                              </div>
                         </div>
 
-                        <div className="bg-red-100 border border-red-300 text-red-800 p-3 rounded-lg text-right flex items-start gap-3">
+                        <div className="bg-red-900/50 border border-red-500/50 text-red-300 p-3 rounded-lg text-right flex items-start gap-3">
                             <span className="text-2xl mt-1">💡</span>
                             <p>يرجى فتح تطبيق المحفظة الإلكترونية الخاص بك ودفع المبلغ المقابل للمحفظة المستلمة أدناه.</p>
                         </div>
                         
-                        <div className="bg-white p-4 rounded-lg shadow text-right">
-                            <p className="text-sm text-gray-500">يرجى الدفع إلى حساب المحفظة الإلكترونية:</p>
+                        <div className="bg-gray-700 p-4 rounded-lg shadow text-right">
+                            <p className="text-sm text-gray-400">يرجى الدفع إلى حساب المحفظة الإلكترونية:</p>
                              <div className="flex justify-between items-center mt-1">
-                                <span className="font-mono text-xl font-bold text-gray-800">{receiverWallet}</span>
-                                <button onClick={() => copyToClipboard(receiverWallet)} className="flex items-center gap-1 text-indigo-600">
+                                <span className="font-mono text-xl font-bold text-gray-100">{receiverWallet}</span>
+                                <button onClick={() => copyToClipboard(receiverWallet)} className="flex items-center gap-1 text-indigo-400">
                                     <ClipboardIcon className="w-4 h-4" />
                                     <span>نسخ</span>
                                 </button>
                              </div>
                         </div>
 
-                        <div className="bg-white p-4 rounded-lg shadow text-right">
-                            <p className="text-sm text-gray-500">مبلغ الدفع:</p>
+                        <div className="bg-gray-700 p-4 rounded-lg shadow text-right">
+                            <p className="text-sm text-gray-400">مبلغ الدفع:</p>
                              <div className="flex justify-between items-center mt-1">
-                                <span className="font-mono text-xl font-bold text-gray-800">{amount.toLocaleString()} EGP</span>
-                                <button onClick={() => copyToClipboard(amount.toString())} className="flex items-center gap-1 text-indigo-600">
+                                <span className="font-mono text-xl font-bold text-gray-100">{amount.toLocaleString()} EGP</span>
+                                <button onClick={() => copyToClipboard(amount.toString())} className="flex items-center gap-1 text-indigo-400">
                                     <ClipboardIcon className="w-4 h-4" />
                                     <span>نسخ</span>
                                 </button>
                              </div>
                         </div>
 
-                        <p className="text-sm text-gray-500 mt-6">إذا تم إكمال الدفع، يرجى النقر على الزر أدناه. سيقوم المسؤول بمراجعة طلبك.</p>
+                        <p className="text-sm text-gray-400 mt-6">إذا تم إكمال الدفع، يرجى النقر على الزر أدناه. سيقوم المسؤول بمراجعة طلبك.</p>
                         <button onClick={handleSubmitPayment} disabled={isLoading} className="w-full bg-blue-600 text-white font-bold p-3 rounded-lg shadow-lg mt-2 flex justify-center items-center">
                            {isLoading ? <Spinner /> : 'لقد أكملت الدفع'}
                         </button>

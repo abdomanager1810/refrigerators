@@ -15,12 +15,12 @@ const SubordinatesDataPage: React.FC = () => {
 
     return (
         <SubPageLayout title="بيانات المرؤوسين">
-            <div className="p-4 space-y-4 bg-gray-100 min-h-screen">
+            <div className="p-4 space-y-4 bg-gray-800 min-h-screen">
                 <div className="relative">
                     <input
                         type="text"
                         placeholder="البحث عن UID المرؤوس"
-                        className="w-full p-3 pl-10 border border-gray-300 rounded-lg text-right"
+                        className="w-full p-3 pl-10 border border-gray-600 bg-gray-700 text-white rounded-lg text-right placeholder-gray-400"
                     />
                     <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 </div>
@@ -28,9 +28,9 @@ const SubordinatesDataPage: React.FC = () => {
                     <input
                         type="date"
                         defaultValue="2025-11-02"
-                        className="w-full p-2 border border-gray-300 rounded-lg text-right"
+                        className="w-full p-2 border border-gray-600 bg-gray-700 text-white rounded-lg text-right"
                     />
-                    <select className="p-2 border border-gray-300 rounded-lg">
+                    <select className="p-2 border border-gray-600 bg-gray-700 text-white rounded-lg">
                         <option>الكل</option>
                     </select>
                 </div>

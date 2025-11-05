@@ -7,7 +7,7 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     return (
-        <div className="max-w-md mx-auto bg-white h-screen flex flex-col">
+        <div className="max-w-md mx-auto bg-gray-800 text-gray-200 h-screen flex flex-col">
             <main className="flex-1 overflow-y-auto pb-20 page-fade-in">
                 {children}
             </main>
